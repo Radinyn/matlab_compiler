@@ -1,5 +1,5 @@
 import sys
-from matlexer import Lech
+from lech import Lech
 
 
 if __name__ == '__main__':
