@@ -1,6 +1,8 @@
+from sys import stderr
 from sly import Parser
 from sly.yacc import YaccProduction as Production
 from lech import Lech
+from sly.lex import Token
 
 class Patryk(Parser):
     tokens = Lech.tokens
@@ -113,7 +115,7 @@ class Patryk(Parser):
         return p
     
     # Built-in print
-    @_('PRINT expression ";"')
+    @_('PRINT "(" expression_list ")" ";"')
     def statement(self, p: Production) -> Production:
         return p
 
@@ -142,11 +144,11 @@ class Patryk(Parser):
         return p
     
     # Loops
-    @_('WHILE "(" expression ")" "{" statement "}"')
+    @_('WHILE "(" expression ")" statement')
     def statement(self, p: Production) -> Production:
         return p
     
-    @_('FOR "(" ID ASSIGN expression ")" "{" statement "}"')
+    @_('FOR "(" ID ASSIGN expression ")" statement')
 
 
     # ====== Statement List ======
@@ -161,3 +163,10 @@ class Patryk(Parser):
     @_('statement_list statement')
     def statement_list(self, p: Production):
         return p
+    
+    def error(self, token: Token) -> None:
+        if not token:
+            print("SyntaxError: End of file reached", file = stderr)
+            return
+    
+        print(f"SyntaxError: Invalid token {token.type} at line {token.lineno}", file = stderr)
