@@ -50,8 +50,8 @@ class Patryk(Parser):
     tokens = Lech.tokens
 
     precedence = (
-        ('right', ASSIGN, PLUS_ASSIGN, MINUS_ASSIGN, TIMES_ASSIGN, DIVIDE_ASSIGN, REMAINDER_ASSIGN),
-        ('left', EQUAL, NOT_EQUAL, GREATER, GREATER_EQUAL, LOWER, LOWER_EQUAL),
+        ('right', ASSIGN, PLUS_ASSIGN, MINUS_ASSIGN, TIMES_ASSIGN, DIVIDE_ASSIGN),
+        ('left', EQUAL, NOT_EQUAL, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL),
         ('left', PLUS, MINUS, DOT_PLUS, DOT_MINUS),
         ('left', TIMES, DIVIDE, DOT_TIMES, DOT_DIVIDE),
         ('right', UNARY_MINUS),
@@ -64,8 +64,14 @@ class Patryk(Parser):
 
     # Program
 
+    start = 'program'
+
+    @_('statement')
+    def program(self, p: Production):
+        return p
+
     @_('program statement')
-    def program(self, p: Production) -> Production:
+    def program(self, p: Production):
         return p
     
     # Expressions
@@ -86,6 +92,7 @@ class Patryk(Parser):
             'expression GREATER_EQUAL expression',
             'expression LESS          expression',
             'expression LESS_EQUAL    expression',
+            'expression RANGE         expression',
             'FLOAT',
             'INTEGER',
             'STRING',
@@ -98,25 +105,40 @@ class Patryk(Parser):
     def expression(self, p: Production) -> Production:
         return p
     
+    @_('expression TRANSPOSE %prec TRANSPOSE')
+    def expression(self, p: Production) -> Production:
+        return p
+
+    @_('EYE   "(" expression ")"',
+       'ZEROS "(" expression ")"',
+       'ONES  "(" expression ")"')
+    def expression(self, p: Production) -> Production:
+        return p
+
     # Statements
     
     @_('expression ";"')
     def statement(self, p: Production) -> Production:
         return p
     
-    @_(
-        'PRINT expression  ";"',
-        'RETURN expression ";"'
-    )
+
+
+    @_('BREAK ";"',
+       'CONTINUE ";"')
+    def statement(self, p: Production) -> Production:
+        return p
+    
+    @_('PRINT expression  ";"',
+       'RETURN expression ";"')
     def statement(self, p: Production) -> Production:
         return p
     
     @_(
-        'expression ASSIGN          expression ";"',
-        'expression PLUS_ASSIGN     expression ";"',
-        'expression MINUS_ASSIGN    expression ";"',
-        'expression TIMES_ASSIGN    expression ";"',
-        'expression DIVIDE_ASSIGN   expression ";"',
+        'ID ASSIGN          expression ";"',
+        'ID PLUS_ASSIGN     expression ";"',
+        'ID MINUS_ASSIGN    expression ";"',
+        'ID TIMES_ASSIGN    expression ";"',
+        'ID DIVIDE_ASSIGN   expression ";"',
     )
     def statement(self, p: Production) -> Production:
         return p
@@ -129,18 +151,20 @@ class Patryk(Parser):
     def statement(self, p: Production) -> Production:
         return p
     
-    @_('WHILE "(" expression ")" { statement }')
+    @_('WHILE "(" expression ")" "{" statement "}"')
     def statement(self, p: Production) -> Production:
         return p
     
-    @_('statement')
-    def statement_list(self, p: Production) -> Production:
-        return p
-    
+    @_('FOR "(" ID ASSIGN expression ")" "{" statement "}"')
+
     @_('"{" statement_list "}"')
-    def statement_list(self, p: Production) -> Production:
+    def statement(self, p: Production):
+        return p
+
+    @_('statement')
+    def statement_list(self, p: Production):
         return p
     
     @_('statement_list statement')
-    def statement_list(self, p: Production) -> Production:
+    def statement_list(self, p: Production):
         return p

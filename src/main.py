@@ -1,5 +1,6 @@
 from sys import argv, stderr
 from lech import Lech
+from patryk import Patryk
 
 if __name__ == '__main__':
     if len(argv) <= 1:
@@ -16,5 +17,7 @@ if __name__ == '__main__':
     text = source_file.read()
 
     lexer = Lech()
-    tokens = list(lexer.tokenize(text))
-    print(*tokens, sep="\n")
+    tokens = lexer.tokenize(text)
+
+    parser = Patryk()
+    parser.parse(tokens)
