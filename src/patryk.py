@@ -13,6 +13,7 @@ class Patryk(Parser):
         ('left', TIMES, DIVIDE, DOT_TIMES, DOT_DIVIDE),
         ('right', UNARY_MINUS),
         ('left', TRANSPOSE),
+        ('left', SUBSCRIPT),
         ('nonassoc', NO_ELSE),
         ('nonassoc', ELSE)
     )
@@ -74,6 +75,11 @@ class Patryk(Parser):
     def expression(self, p: Production) -> Production:
         return p
 
+    # Subscript
+    @_('expression "[" expression_list "]" %prec SUBSCRIPT')
+    def expression(self, p: Production) -> Production:
+        return p
+
     # ====== Expression list ======
     @_('expression')
     def expression_list(self, p: Production) -> Production:
@@ -118,11 +124,11 @@ class Patryk(Parser):
     
     # Assignments
     @_(
-        'ID ASSIGN          expression ";"',
-        'ID PLUS_ASSIGN     expression ";"',
-        'ID MINUS_ASSIGN    expression ";"',
-        'ID TIMES_ASSIGN    expression ";"',
-        'ID DIVIDE_ASSIGN   expression ";"',
+        'expression ASSIGN          expression ";"',
+        'expression PLUS_ASSIGN     expression ";"',
+        'expression MINUS_ASSIGN    expression ";"',
+        'expression TIMES_ASSIGN    expression ";"',
+        'expression DIVIDE_ASSIGN   expression ";"',
     )
     def statement(self, p: Production) -> Production:
         return p
