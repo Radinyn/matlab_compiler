@@ -91,6 +91,10 @@ class Patryk(Parser):
     def expression_list(self, p: Production) -> Production:
         return p
 
+    @_('')
+    def expression_list(self, p: Production) -> Production:
+        return p
+
     # ====== Lists ======
 
     @_('"[" expression_list "]"')

@@ -18,5 +18,5 @@ str = "Hello world";
 
 if (m==n) { 
     if (m >= n)
-        print(res);
+        print();
 }
