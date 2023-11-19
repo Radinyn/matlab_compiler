@@ -7,9 +7,12 @@ from sly.lex import Token
 class Patryk(Parser):
     tokens = Lech.tokens
 
+    debugfile = 'parser.out'
+
     precedence = (
         ('right', ASSIGN, PLUS_ASSIGN, MINUS_ASSIGN, TIMES_ASSIGN, DIVIDE_ASSIGN),
         ('nonassoc', RANGE),
+        ('left', AND, OR, XOR),
         ('left', EQUAL, NOT_EQUAL, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL),
         ('left', PLUS, MINUS, DOT_PLUS, DOT_MINUS),
         ('left', TIMES, DIVIDE, DOT_TIMES, DOT_DIVIDE),
@@ -20,9 +23,6 @@ class Patryk(Parser):
         ('nonassoc', ELSE)
     )
 
-    start = 'program'
-
-
     # ====== Program ======
     
     start = 'program'
@@ -30,11 +30,10 @@ class Patryk(Parser):
     @_('statement_list')
     def program(self, p: Production):
         return p
-    
 
     # ====== Expressions ======
 
-    # Binary Expressions
+    # Binary arythmetic expressions
     @_(
             '"(" expression ")"',
             'expression PLUS          expression',
@@ -44,29 +43,48 @@ class Patryk(Parser):
             'expression DOT_PLUS      expression',
             'expression DOT_MINUS     expression',
             'expression DOT_TIMES     expression',
-            'expression DOT_DIVIDE    expression',
-            'expression EQUAL         expression',
-            'expression NOT_EQUAL     expression',
-            'expression GREATER       expression',
-            'expression GREATER_EQUAL expression',
-            'expression LESS          expression',
-            'expression LESS_EQUAL    expression',
-            'expression RANGE         expression'
+            'expression DOT_DIVIDE    expression'
     )
     def expression(self, p: Production) -> Production:
         return p
     
+    # Binary relation expressions
+    @_(
+        'expression EQUAL         expression',
+        'expression NOT_EQUAL     expression',
+        'expression GREATER       expression',
+        'expression GREATER_EQUAL expression',
+        'expression LESS          expression',
+        'expression LESS_EQUAL    expression'
+    )
+    def expression(self, p: Production) -> Production:
+        return p
+
+    # Binary logical expression
+    @_(
+        'expression AND expression',
+        'expression OR  expression',
+        'expression XOR expression',
+    )
+    def expression(self, p: Production) -> Production:
+        return p
+
     # Value expressions
     @_('FLOAT', 'INTEGER', 'STRING', 'ID')
     def expression(self, p: Production) -> Production:
         return p
     
-    # Unary Operators
+    # Unary operators
     @_('MINUS expression %prec UNARY_MINUS')
     def expression(self, p: Production) -> Production:
         return p
     
     @_('expression TRANSPOSE %prec TRANSPOSE')
+    def expression(self, p: Production) -> Production:
+        return p
+
+    # Range operator
+    @_('expression RANGE expression')
     def expression(self, p: Production) -> Production:
         return p
 
