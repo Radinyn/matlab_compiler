@@ -20,4 +20,8 @@ if __name__ == '__main__':
     tokens = lexer.tokenize(text)
 
     parser = Patryk()
-    parser.parse(tokens)
+    # x = parser.parse(tokens)
+
+    parser.print_ast(tokens)
+   
+
