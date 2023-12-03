@@ -1,6 +1,7 @@
 from sys import argv, stderr
 from lech import Lech
 from patryk import Patryk
+from tytus import Tytus
 
 if __name__ == '__main__':
     if len(argv) <= 1:
@@ -20,8 +21,9 @@ if __name__ == '__main__':
     tokens = lexer.tokenize(text)
 
     parser = Patryk()
-    # x = parser.parse(tokens)
+    
+    ast = parser.parse(tokens)
+    # print(ast)
 
-    parser.print_ast(tokens)
-   
-
+    type_checker = Tytus()
+    type_checker.visit(ast)

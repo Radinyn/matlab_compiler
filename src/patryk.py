@@ -10,7 +10,7 @@ from dataclasses import asdict
 class Patryk(Parser):
     tokens = Lech.tokens
 
-    debugfile = 'parser.out'
+    # debugfile = 'parser.out'
 
     precedence = (
         ('right', ASSIGN, PLUS_ASSIGN, MINUS_ASSIGN, TIMES_ASSIGN, DIVIDE_ASSIGN),
@@ -32,7 +32,7 @@ class Patryk(Parser):
 
     @_('statement_list')
     def program(self, p: Production):
-        return p
+        return Abraham.Program(content=p[0])
 
     # ====== Expressions ======
 

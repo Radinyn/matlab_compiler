@@ -38,6 +38,10 @@ class Abraham:
     class Node:
         pass
 
+    @dataclass 
+    class Program(Node):
+        content: list['Abraham.StatementList']
+
     @dataclass
     class Statement(Node):
         pass
@@ -124,7 +128,3 @@ class Abraham:
     class UnaryOp(Expression):
         operand: 'Abraham.Expression'
         operator: Operator
-
-
-
-
