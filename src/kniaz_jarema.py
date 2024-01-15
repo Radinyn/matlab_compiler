@@ -4,7 +4,7 @@ from patryk import Patryk
 from type_checker import TypeChecker
 from interpreter import Interpreter
 
-if __name__ == '__main__':
+def main():
     if len(argv) <= 1:
         print("No source file specified\nUsage: python3 main.py <source file>", file=stderr)
         exit(1) 
@@ -26,7 +26,11 @@ if __name__ == '__main__':
 
     ast = parser.get_ast(tokens)
     type_checker = TypeChecker()
-    type_checker.check(ast)
+    if type_checker.check(ast) != 0:
+        return
 
     interpreter = Interpreter()
     interpreter.interpret(ast)
+
+if __name__ == '__main__':
+    main()

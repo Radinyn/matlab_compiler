@@ -11,11 +11,21 @@ class Interpreter(NodeVisitor):
     def error(self, message: str) -> None:
         print(f"RuntimeError: {message}")
 
+    def panic(self, message: str) -> None:
+        self.error(message)
+        exit()
+
     def interpret(self, root):
         self.visit(root)
         print("\nMemory dump:")
         self.memory_stack.dump_memory()
 
+    def check_indices(self, matrix, args):
+        shape = matrix.shape
+        for bound, index in zip(shape, args):
+            if index < 0 or index >= bound:
+                self.panic("Index out of bounds.")
+ 
     def set_lvalue(self, node, value):
         is_identifier = isinstance(node, Abraham.Identifier)
         is_subscript = isinstance(node, Abraham.BinOp) and node.operator == "SUBSCRIPT"
@@ -25,6 +35,7 @@ class Interpreter(NodeVisitor):
         if is_subscript:
             matrix = self.memory_stack.get(node.left.name)
             args = self.visit(node.right)
+            self.check_indices(matrix, args)
             matrix[*args] = value
 
     def visit_AssignStatement(self, node):

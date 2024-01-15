@@ -18,6 +18,7 @@ class TypeChecker(NodeVisitor):
         self.errors_total = 0
         self.visit(ast_root)
         print(f"Found {self.errors_total} syntax errors.")
+        return self.errors_total
 
     def visit_AssignStatement(self, node):
         # Now this is bad :pepew:
