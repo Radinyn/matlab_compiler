@@ -8,7 +8,7 @@ class Symbol():
     shape: Tuple[int, ...]
 
     def __eq__(self, other):
-        return self.type == other.type and self.shape == other.shape
+        return self is not None and other is not None and self.type == other.type and self.shape == other.shape
 
 class SymbolTable(object):
 
@@ -25,15 +25,23 @@ class SymbolTable(object):
             raise Exception("Trying to put a symbol that's already defined.")
 
     def get(self, name):
-        if not name in self.lookup.keys():
-            return None
-        return self.lookup[name] 
-
-    def get_parent_context(self):
-        return self.parent_context
+        node = self
+        while node is not None:
+            if name in node.lookup.keys():
+                return node.lookup[name]
+            node = node.parent_context
+        return None 
 
     def push_context(self, name):
         return SymbolTable(self, name)
 
     def pop_context(self):
         return self.parent_context
+    
+    def is_looping(self):
+        node = self
+        while node is not None:
+            if node.name in ["for", "while"]:
+                return True
+            node = node.parent_context
+        return False

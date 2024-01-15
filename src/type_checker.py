@@ -52,14 +52,25 @@ class TypeChecker(NodeVisitor):
         if left != right:
             print("[ERROR] Left and right sides of an operator have different types or shapes")
 
+
     def visit_If(self, node):
-        pass
+        self.symbol_table = self.symbol_table.push_context("if")
+        self.visit(node.block)
+        self.symbol_table = self.symbol_table.pop_context()
 
     def visit_While(self, node):
-        pass
+        self.symbol_table = self.symbol_table.push_context("while")
+        self.visit(node.block)
+        self.symbol_table = self.symbol_table.pop_context()
 
     def visit_For(self, node):
-        pass
+        self.symbol_table = self.symbol_table.push_context("for")
+        self.visit(node.block)
+        self.symbol_table = self.symbol_table.pop_context()
+
+    def visit_Control(self, node):
+        if not self.symbol_table.is_looping():
+            print("[ERROR] Control statement outside of a loop")
 
     def visit_Identifier(self, node):
         node_type = self.symbol_table.get(node.name)
@@ -74,7 +85,7 @@ class TypeChecker(NodeVisitor):
             print("[ERROR] Binary operation not possible when one side has an unknown type")
             return None
 
-        # TODO: Somewhat ugly solution
+        # TODO: A somewhat ugly solution
         if node.operator in [".+", ".-", ".*", "./", "==", "!=", "+", "-"]:
             if symbol_left != symbol_right:
                 print("[ERROR] Left and right symbols must the same equal types")
@@ -102,6 +113,12 @@ class TypeChecker(NodeVisitor):
                 return None
             return Symbol(type="bool", shape=(1, ))
  
+    def visit_UnaryOp(self, node):
+        symbol =  self.visit(node.operand)
+        if node.operator == "'":
+            return Symbol(type=symbol.type, shape=symbol.shape[::-1])
+        return symbol
+
     def visit_ExpressionList(self, node):
         base_type = self.visit(node.content[0])
         for child in node.content:
@@ -115,6 +132,9 @@ class TypeChecker(NodeVisitor):
     def visit_Numericek(self, node):
         value_type = "float" if isinstance(node.value, float) else "int"
         return Symbol(type=value_type, shape=(1, ))
+
+    def visit_String(self, node):
+        return Symbol(type="string", shape=(1, ))
 
     def visit_Vector(self, node):
         return self.visit(node.content)

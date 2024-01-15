@@ -21,7 +21,8 @@ if __name__ == '__main__':
     tokens = lexer.tokenize(text)
 
     parser = Patryk()
-    ast = parser.get_ast(tokens)
+    # parser.print_ast(tokens)
 
+    ast = parser.get_ast(tokens)
     type_checker = TypeChecker()
     type_checker.check(ast)
