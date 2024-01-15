@@ -35,23 +35,26 @@ class TypeChecker(NodeVisitor):
 
 
     def visit_AssignStatement(self, node):
+        # Now this is bad :pepew:
         right = self.visit(node.right)
-
         if right is None:
-            print("[ERROR] Right side can not be assigned")
+            print("[ERROR] Right side can not be assigned because of unknown type")
             return
 
-        if not isinstance(node.left, Abraham.Identifier):
+        is_identifier = isinstance(node.left, Abraham.Identifier)
+        is_subscript = isinstance(node.left, Abraham.BinOp) and node.left.operator == "SUBSCRIPT"
+
+        if not is_identifier and not is_subscript:
             print(f"[ERROR] Left side of assign operator must be an l-value.")
             return
 
-        if self.symbol_table.get(node.left.name) is None and node.operator == "=":
-            self.symbol_table.put(node.left.name, Symbol(right.type, right.shape))
+        id_name = node.left.name if is_identifier else node.left.left.name
+        if self.symbol_table.get(id_name) is None and node.operator == "=":
+            self.symbol_table.put(id_name, Symbol(right.type, right.shape))
 
         left = self.visit(node.left)
         if left != right:
             print("[ERROR] Left and right sides of an operator have different types or shapes")
-
 
     def visit_If(self, node):
         self.symbol_table = self.symbol_table.push_context("if")
@@ -112,6 +115,13 @@ class TypeChecker(NodeVisitor):
                 print("[ERROR] Expected bool type on both sides of the logical operator")
                 return None
             return Symbol(type="bool", shape=(1, ))
+
+        if node.operator == "SUBSCRIPT":
+            if not isinstance(node.left, Abraham.Identifier):
+                print("[ERROR] Subscript mus have and identifier to it' left")
+                return None
+            id = self.visit(node.left)
+            return Symbol(type=id.type, shape=(1, ))
  
     def visit_UnaryOp(self, node):
         symbol =  self.visit(node.operand)
