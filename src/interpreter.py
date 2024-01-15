@@ -2,6 +2,7 @@ from visitor import NodeVisitor
 from memory import Memory, MemoryStack
 import numpy as np
 from control_statements import ReturnException, BreakException, ContinueException
+from abraham import Abraham
 
 class Interpreter(NodeVisitor):
     def __init__(self):
@@ -15,22 +16,32 @@ class Interpreter(NodeVisitor):
         print("\nMemory dump:")
         self.memory_stack.dump_memory()
 
+    def set_lvalue(self, node, value):
+        is_identifier = isinstance(node, Abraham.Identifier)
+        is_subscript = isinstance(node, Abraham.BinOp) and node.operator == "SUBSCRIPT"
+
+        if is_identifier:
+            self.memory_stack.insert(node.name, value)
+        if is_subscript:
+            matrix = self.memory_stack.get(node.left.name)
+            args = self.visit(node.right)
+            matrix[*args] = value
+
     def visit_AssignStatement(self, node):
-        name = node.left.name
         value = self.visit(node.right)
         if node.operator == "=":
-            self.memory_stack.insert(name, value)
+            self.set_lvalue(node.left, value)
             return
         
-        original = self.memory_stack.get(name)
+        original = self.visit(node.left)
         if node.operator == "+=":
-            self.memory_stack.insert(name, original + value)
+            self.set_lvalue(node.left, original + value)
         if node.operator == "-=":        
-            self.memory_stack.insert(name, original - value)
+            self.set_lvalue(node.left, original - value)
         if node.operator == "*=":        
-            self.memory_stack.insert(name, original * value)
+            self.set_lvalue(node.left, original * value)
         if node.operator == "/=":        
-            self.memory_stack.insert(name, original / value)
+            self.set_lvalue(node.left, original / value)
 
     def visit_If(self, node):
         self.memory_stack.push(Memory(name="if"))
@@ -77,14 +88,12 @@ class Interpreter(NodeVisitor):
             raise ContinueException()
 
     def visit_ExpressionList(self, node):
-        # content: list['Abraham.Expression']
-        pass
+        return [self.visit(elem) for elem in node.content]
 
     def visit_Identifier(self, node):
         return self.memory_stack.get(node.name)
 
     def visit_Numericek(self, node):
-        # value: float | int
         return node.value
 
     def visit_String(self, node):
@@ -92,7 +101,6 @@ class Interpreter(NodeVisitor):
 
     def visit_Vector(self, node):
         return np.array([self.visit(elem) for elem in node.content.content])
-
 
     def visit_Matrix(self, node):
         return np.concatenate([self.visit(v) for v in node.rows], axis=0)
@@ -110,8 +118,6 @@ class Interpreter(NodeVisitor):
                 return np.ones((size, size))
             case "zeros":
                 return np.zeros(size)
-
-
 
     def visit_BinOp(self, node):
         left_value = self.visit(node.left)
@@ -144,6 +150,9 @@ class Interpreter(NodeVisitor):
                 return left_value <= right_value
             case ":":
                 return range(left_value, right_value)
+            case "SUBSCRIPT":
+                return left_value[*right_value]
+
 
     def visit_UnaryOp(self, node):
         # operand: 'Abraham.Expression'

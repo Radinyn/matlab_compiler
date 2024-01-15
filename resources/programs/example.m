@@ -1,6 +1,3 @@
-for(i = 1:10) {
-    if (i <= 5) {
-        continue;
-    }
-    print(i);
-}
+A = eye(4);
+A[1, 1] = 2.0;
+print(A);
