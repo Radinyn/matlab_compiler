@@ -5,7 +5,7 @@ for(n = 2:100) {
         while (nc > 0) { nc -= d; }
         if (nc == 0) {
             p = 0;
-        #     break;
+            break;
         }
     }
     if (p == 1) {

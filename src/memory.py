@@ -44,4 +44,4 @@ class MemoryStack:
     
     def dump_memory(self):
         for mem in self.stack:
-            print(mem.lookup)
+            print(mem.name, mem.lookup)

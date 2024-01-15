@@ -1,6 +1,7 @@
 from visitor import NodeVisitor
 from memory import Memory, MemoryStack
 import numpy as np
+from control_statements import ReturnException, BreakException, ContinueException
 
 class Interpreter(NodeVisitor):
     def __init__(self):
@@ -33,32 +34,47 @@ class Interpreter(NodeVisitor):
 
     def visit_If(self, node):
         self.memory_stack.push(Memory(name="if"))
-        if self.visit(node.condition):
-            self.visit(node.block)
-        elif node.else_block is not None: 
-            self.visit(node.else_block)
+        try:
+            if self.visit(node.condition):
+                self.visit(node.block)
+            elif node.else_block is not None: 
+                self.visit(node.else_block)
+        except (BreakException, ContinueException) as e:
+            self.memory_stack.pop()
+            raise e
         self.memory_stack.pop()
     
     def visit_While(self, node):
         self.memory_stack.push(Memory(name="while"))
         while self.visit(node.condition):
-            self.visit(node.block)
+            try:
+                self.visit(node.block)
+            except BreakException:
+                break
+            except ContinueException:
+                continue    
         self.memory_stack.pop()
 
     def visit_For(self, node):
         self.memory_stack.push(Memory(name="for"))
         for i in self.visit(node.range):
-            self.memory_stack.insert(node.iterator, i)
-            self.visit(node.block)
+            try:
+                self.memory_stack.insert(node.iterator, i)
+                self.visit(node.block)
+            except BreakException:
+                break
+            except ContinueException:
+                continue    
         self.memory_stack.pop()
 
     def visit_Return(self, node):
-        # value: 'Abraham.Expression'
-        pass
+        raise ReturnException(self.visit(node.right))
 
     def visit_Control(self, node):
-        # type: Literal["BREAK", "CONTINUE"]
-        pass
+        if node.type == "break":
+            raise BreakException()
+        if node.type == "continue":
+            raise ContinueException()
 
     def visit_ExpressionList(self, node):
         # content: list['Abraham.Expression']
