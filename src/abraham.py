@@ -16,9 +16,6 @@ Operator = Literal[
     "MINUS",
     "TIMES",
     "DIVIDE",
-    "AND",
-    "OR",
-    "XOR",
     "TRANSPOSE",
     "RANGE",
     "SUBSCRIPT",
@@ -95,7 +92,7 @@ class Abraham:
 
     @dataclass
     class Numericek(Expression):
-        value: float
+        value: float | int
 
     @dataclass
     class String(Expression):

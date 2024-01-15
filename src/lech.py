@@ -71,6 +71,9 @@ class Lech(Lexer):
     ID["zeros"] = ZEROS
     ID["ones"] = ONES
     ID["print"] = PRINT
+    ID['and'] = AND
+    ID['or'] = OR
+    ID['xor'] = XOR
 
     # Operators
     PLUS_ASSIGN = r"\+="

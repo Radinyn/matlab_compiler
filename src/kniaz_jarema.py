@@ -1,6 +1,7 @@
 from sys import argv, stderr
 from lech import Lech
 from patryk import Patryk
+from type_checker import TypeChecker
 
 if __name__ == '__main__':
     if len(argv) <= 1:
@@ -20,8 +21,7 @@ if __name__ == '__main__':
     tokens = lexer.tokenize(text)
 
     parser = Patryk()
-    # x = parser.parse(tokens)
+    ast = parser.get_ast(tokens)
 
-    parser.print_ast(tokens)
-   
-
+    type_checker = TypeChecker()
+    type_checker.check(ast)
