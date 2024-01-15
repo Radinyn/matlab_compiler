@@ -2,6 +2,7 @@ from sys import argv, stderr
 from lech import Lech
 from patryk import Patryk
 from type_checker import TypeChecker
+from interpreter import Interpreter
 
 if __name__ == '__main__':
     if len(argv) <= 1:
@@ -26,3 +27,6 @@ if __name__ == '__main__':
     ast = parser.get_ast(tokens)
     type_checker = TypeChecker()
     type_checker.check(ast)
+
+    interpreter = Interpreter()
+    interpreter.interpret(ast)
